@@ -2,7 +2,7 @@ mod model;
 
 use model::todo::{State, Todo};
 use std::fs::File;
-use std::io::{BufWriter, Write};
+use std::io::BufWriter;
 
 fn add_todo(todo_list: &mut Vec<Todo>, title: String, state: State) {
     let id = todo_list.len() as u32 + 1;
