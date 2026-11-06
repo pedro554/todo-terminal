@@ -8,4 +8,4 @@ Nesta fase, o objetivo é praticar manipulação de strings, structs, enums, ger
 * **O que você pratica:**
 * Structs e enums para representar o estado da tarefa.
 * Serialização/deserialização salvando as tarefas em um arquivo JSON usando a crate `serde` e `serde_json`.
-* Leitura de argumentos do terminal (`std::env::args`).
+* Leitura de argumentos do terminal (`std::io::stdin()`).
