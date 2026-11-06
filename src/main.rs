@@ -16,32 +16,35 @@ fn main() {
     println!("Welcome to the Todo App!");
 
     let mut todo_list: Vec<Todo> = Vec::new();
-    let mut title = String::new();
-    let mut state_input = String::new();
 
-    std::io::stdin()
-        .read_line(&mut title)
-        .expect("Failed to read line");
+    loop {
+        let mut title = String::new();
+        let mut state_input = String::new();
 
-    std::io::stdin()
-        .read_line(&mut state_input)
-        .expect("Failed to read line");
+        std::io::stdin()
+            .read_line(&mut title)
+            .expect("Failed to read line");
 
-    let state = match state_input.trim() {
-        "Backlog" => State::Backlog,
-        "InProgress" => State::InProgress,
-        "Completed" => State::Completed,
-        _ => {
-            println!("Invalid state input. Defaulting to Backlog.");
-            State::Backlog
-        }
-    };
+        std::io::stdin()
+            .read_line(&mut state_input)
+            .expect("Failed to read line");
 
-    add_todo(&mut todo_list, title, state);
+        let state = match state_input.trim() {
+            "Backlog" => State::Backlog,
+            "InProgress" => State::InProgress,
+            "Completed" => State::Completed,
+            _ => {
+                println!("Invalid state input. Defaulting to Backlog.");
+                State::Backlog
+            }
+        };
 
-    let serialized = serde_json::to_string(&todo_list).unwrap();
-    println!("Serialized: {}", serialized);
+        add_todo(&mut todo_list, title, state);
 
-    let deserialized: Vec<Todo> = serde_json::from_str(&serialized).unwrap();
-    println!("Deserialized: {:?}", deserialized);
+        let serialized = serde_json::to_string(&todo_list).unwrap();
+        println!("Serialized: {}", serialized);
+
+        let deserialized: Vec<Todo> = serde_json::from_str(&serialized).unwrap();
+        println!("Deserialized: {:?}", deserialized);
+    }
 }
