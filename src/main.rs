@@ -1,6 +1,8 @@
 mod model;
 
 use model::todo::{State, Todo};
+use std::fs::File;
+use std::io::{BufWriter, Write};
 
 fn add_todo(todo_list: &mut Vec<Todo>, title: String, state: State) {
     let id = todo_list.len() as u32 + 1;
@@ -12,7 +14,7 @@ fn add_todo(todo_list: &mut Vec<Todo>, title: String, state: State) {
     todo_list.push(todo);
 }
 
-fn main() {
+fn main() -> std::io::Result<()> {
     println!("Welcome to the Todo App!");
 
     let mut todo_list: Vec<Todo> = Vec::new();
@@ -46,5 +48,9 @@ fn main() {
 
         let deserialized: Vec<Todo> = serde_json::from_str(&serialized).unwrap();
         println!("Deserialized: {:?}", deserialized);
+
+        let file = File::create("todo.json")?;
+        let mut writer = BufWriter::new(file);
+        serde_json::to_writer_pretty(&mut writer, &todo_list)?;
     }
 }
