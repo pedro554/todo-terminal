@@ -4,6 +4,8 @@ use model::todo::{State, Todo};
 fn main() {
     println!("Welcome to the Todo App!");
 
+    let mut todo_list: Vec<Todo> = Vec::new();
+    let id = todo_list.len() as u32 + 1;
     let mut title = String::new();
     let mut state_input = String::new();
 
@@ -16,7 +18,7 @@ fn main() {
         .expect("Failed to read line");
 
     let todo = Todo {
-        id: 1,
+        id: id,
         title: title.trim().to_string(),
         state: match state_input.trim() {
             "Backlog" => State::Backlog,
@@ -29,9 +31,11 @@ fn main() {
         },
     };
 
-    let serialized = serde_json::to_string(&todo).unwrap();
+    todo_list.push(todo);
+
+    let serialized = serde_json::to_string(&todo_list).unwrap();
     println!("Serialized: {}", serialized);
 
-    let deserialized: Todo = serde_json::from_str(&serialized).unwrap();
+    let deserialized: Vec<Todo> = serde_json::from_str(&serialized).unwrap();
     println!("Deserialized: {:?}", deserialized);
 }
