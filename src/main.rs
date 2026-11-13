@@ -2,9 +2,14 @@ mod model;
 
 use model::todo::{State, Todo};
 use std::fs::File;
-use std::io::BufWriter;
+use std::io::{BufWriter, Write};
 
 fn add_todo(todo_list: &mut Vec<Todo>, title: String, state: State) {
+    if title.trim().is_empty() {
+        println!("O título não pode estar vazio!");
+        return;
+    }
+
     let id = todo_list.len() as u32 + 1;
     let todo = Todo {
         id,
@@ -29,48 +34,46 @@ fn gravar(todo_list: &mut Vec<Todo>){
     if let Err(error) = serde_json::to_writer_pretty(&mut writer, &todo_list) {
         println!("Erro ao criar arquivo {}", error);
     }
+
+    writer.flush().expect("Falha ao escrever no arquivo json");
 }
 
-fn carregar_json() -> String {
+fn carregar_json() -> Result<Vec<Todo>, Box<dyn std::error::Error>> {
     let filename = "todo.json";
-    let data = std::fs::read_to_string(filename).unwrap();
-    let json: serde_json::Value = serde_json::from_str(&data).expect("JSON inválido.");
-    println!("{}", json);
 
-    json.to_string()
+    if !std::path::Path::new(filename).exists() {
+        return Ok(Vec::new());
+    }
+
+    let data = std::fs::read_to_string(filename)?;
+
+    let lista: Vec<Todo> = serde_json::from_str(&data)?;
+
+    Ok(lista)
+}
+
+fn ler_texto(mensagem: &str) -> std::io::Result<String> {
+    println!("{}", mensagem);
+
+    let mut texto = String::new();
+
+    std::io::stdin().read_line(&mut texto)?;
+
+    Ok(texto.trim().to_string())
 }
 
 fn main() -> std::io::Result<()> {
-    println!("Welcome to the Todo App!");
-
-    let dados_carregados = carregar_json();
-
-    let mut todo_list: Vec<Todo> = serde_json::from_str(&dados_carregados)?;
-
-    println!("{:?}", todo_list);
+    let mut todo_list: Vec<Todo> = carregar_json().expect("Falha ao carregar json");
 
     loop {
-        let mut title = String::new();
-        let mut state_input = String::new();
-
-        println!("Informe o titulo:");
-        std::io::stdin()
-            .read_line(&mut title)
-            .expect("Failed to read line");
-
-        println!("informe o estado Backlog, InProgress ou Completed");
-        std::io::stdin()
-            .read_line(&mut state_input)
-            .expect("Failed to read line");
+        let title = ler_texto("Informe o título")?;
+        let state_input = ler_texto("informe o estado Backlog, InProgress ou Completed")?;
 
         let state = match state_input.trim() {
             "Backlog" => State::Backlog,
             "InProgress" => State::InProgress,
             "Completed" => State::Completed,
-            _ => {
-                println!("Invalid state input. Defaulting to Backlog.");
-                State::Backlog
-            }
+            _ => State::Backlog
         };
 
         add_todo(&mut todo_list, title, state);
