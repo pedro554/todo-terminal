@@ -14,6 +14,23 @@ fn add_todo(todo_list: &mut Vec<Todo>, title: String, state: State) {
     todo_list.push(todo);
 }
 
+fn gravar(todo_list: &mut Vec<Todo>){
+    let filename = "todo.json";
+    let file = match File::create(filename) {
+        Ok(file) => file,
+        Err(error) => {
+            println!("Erro ao criar arquivo {}", error);
+            return;
+        }
+    };
+
+    let mut writer = BufWriter::new(file);
+
+    if let Err(error) = serde_json::to_writer_pretty(&mut writer, &todo_list) {
+        println!("Erro ao criar arquivo {}", error);
+    }
+}
+
 fn carregar_json() -> String {
     let filename = "todo.json";
     let data = std::fs::read_to_string(filename).unwrap();
@@ -58,14 +75,6 @@ fn main() -> std::io::Result<()> {
 
         add_todo(&mut todo_list, title, state);
 
-        let serialized = serde_json::to_string(&todo_list).unwrap();
-        println!("Serialized: {}", serialized);
-
-        let deserialized: Vec<Todo> = serde_json::from_str(&serialized).unwrap();
-        println!("Deserialized: {:?}", deserialized);
-
-        let file = File::create("todo.json")?;
-        let mut writer = BufWriter::new(file);
-        serde_json::to_writer_pretty(&mut writer, &todo_list)?;
+        gravar(&mut todo_list);
     }
 }
