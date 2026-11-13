@@ -14,19 +14,34 @@ fn add_todo(todo_list: &mut Vec<Todo>, title: String, state: State) {
     todo_list.push(todo);
 }
 
+fn carregar_json() -> String {
+    let filename = "todo.json";
+    let data = std::fs::read_to_string(filename).unwrap();
+    let json: serde_json::Value = serde_json::from_str(&data).expect("JSON inválido.");
+    println!("{}", json);
+
+    json.to_string()
+}
+
 fn main() -> std::io::Result<()> {
     println!("Welcome to the Todo App!");
 
-    let mut todo_list: Vec<Todo> = Vec::new();
+    let dados_carregados = carregar_json();
+
+    let mut todo_list: Vec<Todo> = serde_json::from_str(&dados_carregados)?;
+
+    println!("{:?}", todo_list);
 
     loop {
         let mut title = String::new();
         let mut state_input = String::new();
 
+        println!("Informe o titulo:");
         std::io::stdin()
             .read_line(&mut title)
             .expect("Failed to read line");
 
+        println!("informe o estado Backlog, InProgress ou Completed");
         std::io::stdin()
             .read_line(&mut state_input)
             .expect("Failed to read line");
